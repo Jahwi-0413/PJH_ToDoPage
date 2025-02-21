@@ -1,5 +1,4 @@
-import { Board } from "./board.class";
-import { Todo } from "./todo.class";
+import { Board, BoardManager } from "./boardManager";
 
 export const STORAGE_KEY_BOARD = "boards";
 
@@ -26,14 +25,11 @@ const StorageManager = {
   },
 
   getBoards: (): Board[] => {
-    return StorageManager.getItem(STORAGE_KEY_BOARD).map((item: BoardJson) => {
-      const todos = item._todos.map((t) => new Todo(item._id, t._name, t._id));
-      return new Board(item._id, item._name, todos);
-    });
+    return StorageManager.getItem(STORAGE_KEY_BOARD);
   },
   addBoard: (): Board => {
     const boards: Board[] = StorageManager.getBoards();
-    boards.push(new Board());
+    boards.push(BoardManager.createBoard());
     StorageManager.setBoards(boards);
     return boards[boards.length - 1];
   },
@@ -57,7 +53,7 @@ const StorageManager = {
     if (boards.length === 0) {
       throw new Error("To Do를 생성할 보드가 없습니다.");
     }
-    const result = boards[0].createTodo();
+    const result = BoardManager.createTodo(boards[0]);
     StorageManager.setBoards(boards);
     return result;
   },
@@ -82,7 +78,7 @@ const StorageManager = {
     if (boardIndex === -1) {
       throw new Error("보드가 존재하지 않습니다.");
     }
-    boards[boardIndex].removeTodo(todoId);
+    BoardManager.removeTodo(boards[boardIndex], todoId);
     StorageManager.setBoards(boards);
   },
 
@@ -113,7 +109,7 @@ const StorageManager = {
     if (boardIndex === -1) {
       throw new Error("해당하는 보드가 존재하지 않습니다.");
     }
-    boards[boardIndex].changeTodoOrder(todoId, targetIndex);
+    BoardManager.changeTodoOrder(boards[boardIndex], todoId, targetIndex);
     StorageManager.setBoards(boards);
   },
 
@@ -135,22 +131,10 @@ const StorageManager = {
       throw new Error("To Do가 보드에 존재하지 않습니다.");
     }
 
-    toBoard.addTodo([targetTodo], targetIndex);
-    fromBoard.removeTodo(todoId);
+    BoardManager.addTodo(toBoard, [targetTodo], targetIndex);
+    BoardManager.removeTodo(fromBoard, todoId);
     StorageManager.setBoards(boards);
   },
-};
-
-export type BoardJson = {
-  _id: string;
-  _name: string;
-  _todos: TodoJson[];
-};
-
-export type TodoJson = {
-  _id: string;
-  _name: string;
-  _boardId: string;
 };
 
 export default StorageManager;
