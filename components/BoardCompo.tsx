@@ -20,7 +20,7 @@ import { Board } from "@/lib/boardManager";
 import { TodoCompo } from "./TodoCompo";
 import { Todo } from "@/lib/todoManager";
 
-interface BoardProps extends React.ComponentProps<"input"> {
+interface BoardProps extends React.ComponentProps<"div"> {
   board: Board;
   setBoard: (board: Board) => void;
   createTodo: () => void;
