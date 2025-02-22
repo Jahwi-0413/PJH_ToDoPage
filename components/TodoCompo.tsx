@@ -6,6 +6,7 @@ import { Button } from "./ui/button";
 import { EditIcon, TrashIcon } from "lucide-react";
 
 import { useRef } from "react";
+import { cn } from "@/lib/utils";
 
 interface TodoProps extends React.ComponentProps<"div"> {
   todo: Todo;
@@ -17,6 +18,7 @@ export function TodoCompo({
   todo,
   changeTodoName,
   deleteTodo,
+  className,
   ...props
 }: TodoProps) {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -31,7 +33,10 @@ export function TodoCompo({
 
   return (
     <div
-      className="group rounded-md grid grid-cols-[2.5fr_.25fr_.25fr] bg-gray-300 p-2 hover:bg-gray-200"
+      className={cn(
+        "group rounded-md grid grid-cols-[2.5fr_.25fr_.25fr] bg-gray-300 p-2 hover:bg-gray-200",
+        className
+      )}
       {...props}
     >
       <Input

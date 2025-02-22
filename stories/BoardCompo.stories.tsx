@@ -95,6 +95,7 @@ function BoardCompoStory() {
   return board ? (
     <BoardCompo
       board={board}
+      setBoard={setBoard}
       createTodo={createTodo}
       editBoardName={editBoardName}
       deleteBoard={deleteBoard}
