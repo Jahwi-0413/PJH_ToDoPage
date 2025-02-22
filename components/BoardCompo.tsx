@@ -49,6 +49,9 @@ export function BoardCompo({
   };
 
   const handleDragOver = (index: number) => {
+    if (!draggingTodo) {
+      return;
+    }
     setHoverIndex(index);
   };
 
@@ -90,7 +93,7 @@ export function BoardCompo({
         className="grid grid-cols-[50%_auto_.25fr_.25fr] items-center"
         onDragOver={(e) => {
           e.preventDefault();
-          setHoverIndex(-1);
+          handleDragOver(-1);
         }}
         onDrop={handleDrop}
       >
@@ -177,7 +180,7 @@ export function BoardCompo({
           className="flex-1"
           onDragOver={(e) => {
             e.preventDefault();
-            setHoverIndex(board.todos.length);
+            handleDragOver(board.todos.length);
           }}
           onDrop={handleDrop}
         ></div>
