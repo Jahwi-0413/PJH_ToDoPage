@@ -143,7 +143,10 @@ export function BoardCompo({
             key={t.id}
             className={`relative  rounded-lg `}
             draggable
-            onDragStart={() => handleDragStart(t)}
+            onDragStart={(e) => {
+              e.stopPropagation();
+              handleDragStart(t);
+            }}
             onDragOver={(e) => {
               e.preventDefault();
               handleDragOver(index);
