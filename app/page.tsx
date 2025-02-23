@@ -13,12 +13,15 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { TodoManager } from "@/lib/todoManager";
+import { BoardSkeleton } from "@/components/BoardSkeleton";
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
   const [boards, setBoards] = useState<Board[]>([]);
 
   useEffect(() => {
     setBoards(StorageManager.getBoards());
+    setIsLoading(false);
   }, []);
 
   useEffect(() => {
@@ -70,7 +73,12 @@ export default function Home() {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      {boards.length === 0 ? (
+      {isLoading ? (
+        <div className="flex flex-row gap-6">
+          <BoardSkeleton />
+          <BoardSkeleton />
+        </div>
+      ) : boards.length === 0 ? (
         <div>저장된 보드가 없습니다.</div>
       ) : (
         <div className="flex-grow overflow-x-auto w-full">
