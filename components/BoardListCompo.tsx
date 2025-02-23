@@ -1,6 +1,6 @@
 "use client";
 
-import { Board } from "@/lib/boardManager";
+import { Board, BoardManager } from "@/lib/boardManager";
 import { BoardCompo } from "./BoardCompo";
 import { Todo, TodoManager } from "@/lib/todoManager";
 import { useState } from "react";
@@ -24,7 +24,7 @@ export function BoardListCompo({ boards, setBoards }: BoardListCompo) {
   };
 
   const deleteBoard = (boardId: string) => {
-    setBoards(boards.filter((b) => b.id !== boardId));
+    setBoards((prev) => BoardManager.deleteBoard(prev, boardId));
   };
 
   const setBoard = (board: Board) => {
@@ -45,16 +45,15 @@ export function BoardListCompo({ boards, setBoards }: BoardListCompo) {
       // e.stopPropagation();
       setBoards((prev) => {
         const newBoards = [...prev];
-        const oldIndex = newBoards.findIndex((b) => b.id === draggingBoard.id);
-        newBoards.splice(oldIndex, 1);
-
         let newIndex = hoverIndex;
         if (hoverIndex <= 0) {
           newIndex = 0;
         } else if (hoverIndex >= prev.length) {
           newIndex = prev.length;
         }
-        newBoards.splice(newIndex, 0, draggingBoard);
+
+        BoardManager.changeBoardOrder(newBoards, draggingBoard.id, newIndex);
+
         return newBoards;
       });
     }
@@ -163,7 +162,7 @@ export function BoardListCompo({ boards, setBoards }: BoardListCompo) {
             deleteTodo={(todoId) => {
               setBoard({
                 ...board,
-                todos: board.todos.filter((t) => t.id !== todoId),
+                todos: TodoManager.deleteTodo(board.todos, todoId),
               });
             }}
             draggingTodo={draggingTodo}
