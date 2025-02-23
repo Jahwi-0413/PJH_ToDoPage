@@ -11,30 +11,33 @@ export const BoardManager = {
   createBoard(): Board {
     return { id: randomId(), name: "New Board", todos: [] };
   },
-  createTodo(board: Board): Todo {
-    const todo = TodoManager.createTodo();
-    board.todos.push(todo);
-    return todo;
+
+  deleteBoard(boards: Board[], targetId: string): Board[] {
+    return boards.filter((b) => b.id !== targetId);
+  },
+
+  changeBoardOrder(boards: Board[], boardId: string, targetIndex: number) {
+    // invalid index
+    if (targetIndex > boards.length + 1) {
+      throw new Error("보드를 옮길 수 없는 자리입니다.");
+    }
+
+    const boardIndex = boards.findIndex((b) => b.id === boardId);
+    if (boardIndex === -1) {
+      throw new Error("해당하는 보드가 존재하지 않습니다.");
+    }
+    const tmp = boards[targetIndex];
+    boards[targetIndex] = boards[boardIndex];
+    boards[boardIndex] = tmp;
+    return boards;
   },
 
   addTodo(board: Board, todo: Todo[], targetIndex: number) {
     board.todos.splice(targetIndex, 0, ...todo);
   },
 
-  changeTodoName(board: Board, todoId: string, name: string) {
-    const target = board.todos.find((t) => t.id === todoId);
-
-    if (!target) {
-      return new Error("todo를 찾을 수 없습니다.");
-    }
-    target.name = name;
-  },
-
   removeTodo(board: Board, todoId: string) {
-    const index = board.todos.findIndex((t) => t.id === todoId);
-    if (index !== -1) {
-      board.todos.splice(index, 1);
-    }
+    board.todos = TodoManager.deleteTodo(board.todos, todoId);
   },
 
   changeTodoOrder(board: Board, todoId: string, newIndex: number) {
@@ -50,6 +53,29 @@ export const BoardManager = {
     const targetTodo = board.todos[originIndex];
     board.todos[newIndex] = targetTodo;
     board.todos[originIndex] = tmpTodo;
+  },
+
+  moveTodoToAnotherBoard: (
+    boards: Board[],
+    fromBoardId: string,
+    toBoardId: string,
+    todoId: string,
+    targetIndex: number
+  ) => {
+    const fromBoard = boards.find((b) => b.id === fromBoardId);
+    const toBoard = boards.find((b) => b.id === toBoardId);
+
+    if (!fromBoard || !toBoard) {
+      throw new Error("보드 정보를 찾을 수 없습니다.");
+    }
+    const targetTodo = fromBoard.todos.find((t) => t.id === todoId);
+    if (!targetTodo) {
+      throw new Error("To Do가 보드에 존재하지 않습니다.");
+    }
+
+    BoardManager.addTodo(toBoard, [targetTodo], targetIndex);
+    BoardManager.removeTodo(fromBoard, todoId);
+    return boards;
   },
 
   moveTodoFromBoard(

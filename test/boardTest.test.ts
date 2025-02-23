@@ -32,7 +32,8 @@ beforeEach(() => {
 
 test("Add a new board", () => {
   // 새로운 보드 추가
-  const board = StorageManager.addBoard();
+  const board = BoardManager.createBoard();
+  StorageManager.setBoards([board]);
 
   expect(localStorage.setItem).toHaveBeenCalledWith(
     STORAGE_KEY_BOARD,
@@ -41,8 +42,8 @@ test("Add a new board", () => {
 });
 
 test("Delete a board", () => {
-  const board = StorageManager.addBoard();
-  StorageManager.deleteBoard(board.id);
+  const board = BoardManager.createBoard();
+  BoardManager.deleteBoard([board], board.id);
 
   expect(localStorage.setItem).toHaveBeenCalledWith(
     STORAGE_KEY_BOARD,
@@ -51,9 +52,10 @@ test("Delete a board", () => {
 });
 
 test("Change board name", () => {
-  const board = StorageManager.addBoard();
+  const board = BoardManager.createBoard();
   const newName = "To Do";
-  StorageManager.changeBoardName(board.id, newName);
+  board.name = newName;
+  StorageManager.setBoards([board]);
 
   expect(localStorage.setItem).toHaveBeenCalledWith(
     STORAGE_KEY_BOARD,
@@ -62,8 +64,11 @@ test("Change board name", () => {
 });
 
 test("Add a new todo", () => {
-  const board = StorageManager.addBoard();
-  const newTodo = StorageManager.addNewTodo();
+  const board = BoardManager.createBoard();
+  const newTodo = TodoManager.createTodo();
+  BoardManager.addTodo(board, [newTodo], 0);
+
+  StorageManager.setBoards([board]);
 
   expect(localStorage.setItem).toHaveBeenCalledWith(
     STORAGE_KEY_BOARD,
@@ -72,11 +77,11 @@ test("Add a new todo", () => {
 });
 
 test("Change todo name", () => {
-  const board = StorageManager.addBoard();
-  const newTodo = StorageManager.addNewTodo();
-  const newTodoName = "공부하기";
-  newTodo.name = newTodoName;
-  StorageManager.changeTodoName(board.id, newTodo.id, newTodoName);
+  const board = BoardManager.createBoard();
+  const newTodo = TodoManager.createTodo();
+  BoardManager.addTodo(board, [newTodo], 0);
+  newTodo.name = "공부하기";
+  StorageManager.setBoards([board]);
 
   expect(localStorage.setItem).toHaveBeenCalledWith(
     STORAGE_KEY_BOARD,
@@ -85,9 +90,13 @@ test("Change todo name", () => {
 });
 
 test("Delete todo", () => {
-  const board = StorageManager.addBoard();
-  const newTodo = StorageManager.addNewTodo();
-  StorageManager.deleteTodo(board.id, newTodo.id);
+  const board = BoardManager.createBoard();
+  const newTodo = TodoManager.createTodo();
+  BoardManager.addTodo(board, [newTodo], 0);
+
+  StorageManager.setBoards([
+    { ...board, todos: TodoManager.deleteTodo(board.todos, newTodo.id) },
+  ]);
 
   expect(localStorage.setItem).toHaveBeenCalledWith(
     STORAGE_KEY_BOARD,
@@ -100,8 +109,13 @@ test("Change board order", () => {
   board1.name = "To Do";
   const board2 = BoardManager.createBoard();
   board2.name = "In Progress";
-  StorageManager.setBoards([board1, board2]);
-  StorageManager.changeBoardOrder(board1.id, 1);
+
+  const newBoards = BoardManager.changeBoardOrder(
+    [board1, board2],
+    board1.id,
+    1
+  );
+  StorageManager.setBoards(newBoards);
 
   expect(localStorage.setItem).toHaveBeenCalledWith(
     STORAGE_KEY_BOARD,
@@ -116,8 +130,8 @@ test("Change todo order", () => {
   todo2.name = "Target To Do"; // todo name 순서 : "New To Do" -> "Target To Do" -> "New To Do"
   const todo3 = TodoManager.createTodo();
   board.todos = [todo1, todo2, todo3];
+  board.todos = TodoManager.changeTodoOrder(board.todos, todo2.id, 2); // todo name 순서 : "New To Do" -> "New To Do" -> "Target To Do"
   StorageManager.setBoards([board]);
-  StorageManager.changeTodoOrder(board.id, todo2.id, 2); // todo name 순서 : "New To Do" -> "New To Do" -> "Target To Do"
 
   expect(localStorage.setItem).toHaveBeenCalledWith(
     STORAGE_KEY_BOARD,
@@ -135,8 +149,15 @@ test("Move a todo from A to B", () => {
   const todo1 = { ...TodoManager.createTodo(), name: "To Do 1" };
   const todo2 = { ...TodoManager.createTodo(), name: "To Do 2" };
   boardA.todos = [todo1, todo2]; // boardA.todos = [todo1, todo2], boardB.todos = []
+  BoardManager.moveTodoToAnotherBoard(
+    [boardA, boardB],
+    boardA.id,
+    boardB.id,
+    todo1.id,
+    0
+  );
+  // boardA.todos = [todo2], boardB.todos = [todo1]
   StorageManager.setBoards([boardA, boardB]);
-  StorageManager.moveTodoToAnotherBoard(boardA.id, boardB.id, todo1.id, 0); // boardA.todos = [todo2], boardB.todos = [todo1]
 
   expect(localStorage.setItem).toHaveBeenCalledWith(
     STORAGE_KEY_BOARD,
