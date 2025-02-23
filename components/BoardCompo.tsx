@@ -99,7 +99,9 @@ export function BoardCompo({
   };
 
   const onClickEdit = () => {
-    nameInputRef.current?.focus();
+    setTimeout(() => {
+      nameInputRef.current?.focus();
+    }, 100);
   };
 
   return (
@@ -134,7 +136,10 @@ export function BoardCompo({
               <EllipsisVerticalIcon />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-24">
+          <DropdownMenuContent
+            className="w-24"
+            onCloseAutoFocus={(e) => e.preventDefault()}
+          >
             <DropdownMenuItem onClick={createTodo}>
               <PlusIcon />
               <span>할 일 추가</span>
