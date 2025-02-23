@@ -28,7 +28,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <div className="items-center justify-items-center min-h-screen p-8 pb-20 gap-8 sm:p-16 font-[family-name:var(--font-geist-sans)]">
-          <main className="row-start-2 flex flex-col gap-8 items-center sm:items-start w-full h-full overflow-x-hidden">
+          <main className="row-start-2 flex flex-col gap-8 items-center sm:items-start w-full min-h-0 overflow-y-auto">
             {children}
           </main>
         </div>

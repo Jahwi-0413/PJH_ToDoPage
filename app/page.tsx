@@ -73,7 +73,7 @@ export default function Home() {
       {boards.length === 0 ? (
         <div>저장된 보드가 없습니다.</div>
       ) : (
-        <div>
+        <div className="flex-grow overflow-x-auto w-full">
           <BoardListCompo boards={boards} setBoards={setBoards} />
         </div>
       )}
