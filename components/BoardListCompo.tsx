@@ -40,7 +40,7 @@ export function BoardListCompo({ boards, setBoards }: BoardListCompo) {
     setHoverIndex(index);
   };
 
-  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDrop = () => {
     if (draggingBoard !== null && hoverIndex !== null) {
       // e.stopPropagation();
       setBoards((prev) => {
@@ -106,8 +106,12 @@ export function BoardListCompo({ boards, setBoards }: BoardListCompo) {
     }
   };
 
-  const moveItem = <T,>(items: T[], itemId: string, newIndex: number): T[] => {
-    const oldIndex = items.findIndex((item: any) => item.id === itemId);
+  const moveItem = (
+    items: Todo[],
+    itemId: string,
+    newIndex: number
+  ): Todo[] => {
+    const oldIndex = items.findIndex((item: Todo) => item.id === itemId);
     if (oldIndex === -1) return items;
 
     const newItems = [...items];
@@ -119,7 +123,7 @@ export function BoardListCompo({ boards, setBoards }: BoardListCompo) {
   return (
     <div
       className="flex flex-row p-4 overflow-x-auto"
-      onDrop={(e) => handleDrop(e)}
+      onDrop={handleDrop}
       onDragLeave={() => handleDragOver(null)}
     >
       {boards.map((board, index) => (
@@ -135,7 +139,7 @@ export function BoardListCompo({ boards, setBoards }: BoardListCompo) {
             handleDragOver(index);
           }}
           onDragEnd={handleDragEnd}
-          onDrop={(e) => handleDrop(e)}
+          onDrop={handleDrop}
         >
           <div
             className={`w-[4px] h-full bg-blue-500 m-auto ${

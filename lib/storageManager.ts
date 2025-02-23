@@ -1,9 +1,9 @@
-import { Board, BoardManager } from "./boardManager";
+import { Board } from "./boardManager";
 
 export const STORAGE_KEY_BOARD = "boards";
 
 const StorageManager = {
-  setItem: (key: string, value: any) => {
+  setItem: (key: string, value: unknown) => {
     if (typeof window === "undefined") {
       return;
     }
@@ -33,7 +33,7 @@ const StorageManager = {
   },
 
   getBoards: (): Board[] => {
-    let boards: Board[] | null = StorageManager.getItem(STORAGE_KEY_BOARD);
+    const boards: Board[] | null = StorageManager.getItem(STORAGE_KEY_BOARD);
     // 데이터가 없는 경우에는 강제로 만들어준다
     if (!boards) {
       StorageManager.initData();

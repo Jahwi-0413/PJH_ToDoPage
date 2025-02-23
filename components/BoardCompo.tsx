@@ -42,7 +42,6 @@ interface BoardProps extends React.ComponentProps<"div"> {
 
 export function BoardCompo({
   board,
-  setBoard,
   createTodo,
   editBoardName,
   deleteBoard,
