@@ -12,6 +12,11 @@ interface BoardListCompo {
 
 export function BoardListCompo({ boards, setBoards }: BoardListCompo) {
   const [draggingBoard, setDraggingBoard] = useState<Board | null>(null);
+  const [draggingTodo, setDraggingTodo] = useState<{
+    todo: Todo;
+    boardId: string;
+  } | null>(null);
+
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
   const editBoardName = (boardId: string, name: string) => {
@@ -30,13 +35,14 @@ export function BoardListCompo({ boards, setBoards }: BoardListCompo) {
     setDraggingBoard(board);
   };
 
-  const handleDragOver = (index: number) => {
+  const handleDragOver = (index: number | null) => {
     if (!draggingBoard) return;
     setHoverIndex(index);
   };
 
-  const handleDrop = () => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     if (draggingBoard !== null && hoverIndex !== null) {
+      // e.stopPropagation();
       setBoards((prev) => {
         const newBoards = [...prev];
         const oldIndex = newBoards.findIndex((b) => b.id === draggingBoard.id);
@@ -64,8 +70,59 @@ export function BoardListCompo({ boards, setBoards }: BoardListCompo) {
     resetDragging();
   };
 
+  const moveTodo = (
+    todo: Todo,
+    fromBoardId: string,
+    toBoardId: string,
+    newIndex: number
+  ) => {
+    if (fromBoardId === toBoardId) {
+      setBoards((prev) =>
+        prev.map((board) =>
+          board.id === toBoardId
+            ? { ...board, todos: moveItem(board.todos, todo.id, newIndex) }
+            : board
+        )
+      );
+    } else {
+      setBoards((prev) => {
+        const fromBoard = prev.find((b) => b.id === fromBoardId);
+        const toBoard = prev.find((b) => b.id === toBoardId);
+        if (!fromBoard || !toBoard) return prev;
+
+        return prev.map((board) => {
+          if (board.id === fromBoardId) {
+            return {
+              ...board,
+              todos: board.todos.filter((t) => t.id !== todo.id),
+            };
+          } else if (board.id === toBoardId) {
+            const newTodos = [...toBoard.todos];
+            newTodos.splice(newIndex, 0, todo);
+            return { ...board, todos: newTodos };
+          }
+          return board;
+        });
+      });
+    }
+  };
+
+  const moveItem = <T,>(items: T[], itemId: string, newIndex: number): T[] => {
+    const oldIndex = items.findIndex((item: any) => item.id === itemId);
+    if (oldIndex === -1) return items;
+
+    const newItems = [...items];
+    const [removed] = newItems.splice(oldIndex, 1);
+    newItems.splice(newIndex, 0, removed);
+    return newItems;
+  };
+
   return (
-    <div className="flex flex-row p-4 overflow-x-auto">
+    <div
+      className="flex flex-row p-4 overflow-x-auto"
+      onDrop={(e) => handleDrop(e)}
+      onDragLeave={() => handleDragOver(null)}
+    >
       {boards.map((board, index) => (
         <div
           className="flex flex-row gap-0"
@@ -78,10 +135,8 @@ export function BoardListCompo({ boards, setBoards }: BoardListCompo) {
             e.preventDefault();
             handleDragOver(index);
           }}
-          onDrop={() => {
-            handleDrop();
-          }}
           onDragEnd={handleDragEnd}
+          onDrop={(e) => handleDrop(e)}
         >
           <div
             className={`w-[4px] h-full bg-blue-500 m-auto ${
@@ -111,6 +166,9 @@ export function BoardListCompo({ boards, setBoards }: BoardListCompo) {
                 todos: board.todos.filter((t) => t.id !== todoId),
               });
             }}
+            draggingTodo={draggingTodo}
+            setDraggingTodo={setDraggingTodo}
+            moveTodo={moveTodo}
           />
           <div className={"w-4 h-full"}>
             <div

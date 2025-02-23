@@ -28,6 +28,16 @@ interface BoardProps extends React.ComponentProps<"div"> {
   deleteBoard: () => void;
   changeTodoName: (todoId: string, name: string) => void;
   deleteTodo: (todoId: string) => void;
+  draggingTodo: { todo: Todo; boardId: string } | null;
+  setDraggingTodo: React.Dispatch<
+    React.SetStateAction<{ todo: Todo; boardId: string } | null>
+  >;
+  moveTodo: (
+    todo: Todo,
+    boardId: string,
+    toBoardId: string,
+    newIndex: number
+  ) => void;
 }
 
 export function BoardCompo({
@@ -38,14 +48,16 @@ export function BoardCompo({
   deleteBoard,
   changeTodoName,
   deleteTodo,
+  moveTodo,
+  draggingTodo,
+  setDraggingTodo,
   ...props
 }: BoardProps) {
   const nameInputRef = useRef<HTMLInputElement>(null);
-  const [draggingTodo, setDraggingTodo] = useState<Todo | null>(null);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
   const handleDragStart = (todo: Todo) => {
-    setDraggingTodo(todo);
+    setDraggingTodo({ todo, boardId: board.id });
   };
 
   const handleDragOver = (index: number) => {
@@ -59,21 +71,22 @@ export function BoardCompo({
     resetDragging();
   };
 
-  const handleDrop = () => {
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     if (draggingTodo !== null && hoverIndex !== null) {
-      const updatedTodos = [...board.todos];
-      const oldIndex = updatedTodos.findIndex((t) => t.id === draggingTodo.id);
-      updatedTodos.splice(oldIndex, 1);
-
+      // todo를 옮길때는 부모로 이벤트 전파 막음
+      // e.stopPropagation();
       let newIndex = hoverIndex;
       if (hoverIndex <= 0) {
         newIndex = 0;
       } else if (hoverIndex >= board.todos.length) {
         newIndex = board.todos.length;
       }
+      // todo가 하나도 없는 board인 경우
+      if (board.todos.length === 0) {
+        newIndex = 0;
+      }
 
-      updatedTodos.splice(newIndex, 0, draggingTodo);
-      setBoard({ ...board, todos: updatedTodos });
+      moveTodo(draggingTodo.todo, draggingTodo.boardId, board.id, newIndex);
     }
     resetDragging();
   };
@@ -88,14 +101,18 @@ export function BoardCompo({
   };
 
   return (
-    <Card className="w-[20vw] h-[70vh]" {...props}>
+    <Card
+      className="w-[20vw] h-[70vh] flex flex-col"
+      {...props}
+      onDragLeave={() => setHoverIndex(null)}
+    >
       <CardHeader
         className="grid grid-cols-[50%_auto_.25fr_.25fr] items-center"
         onDragOver={(e) => {
           e.preventDefault();
           handleDragOver(-1);
         }}
-        onDrop={handleDrop}
+        onDrop={(e) => handleDrop(e)}
       >
         <CardTitle className="mr-4">
           <Input
@@ -136,7 +153,16 @@ export function BoardCompo({
       </CardHeader>
       <CardContent
         className="flex flex-col gap-2 flex-1 overflow-y-auto"
-        onDrop={handleDrop}
+        onDragOver={(e) => {
+          e.preventDefault();
+          if (board.todos.length === 0) {
+            handleDragOver(0);
+          } else {
+            e.stopPropagation();
+            handleDragOver(board.todos.length);
+          }
+        }}
+        onDrop={(e) => handleDrop(e)}
       >
         {board.todos.map((t, index) => (
           <div
@@ -151,17 +177,22 @@ export function BoardCompo({
               e.preventDefault();
               handleDragOver(index);
             }}
-            onDrop={handleDrop}
+            onDrop={(e) => handleDrop(e)}
             onDragEnd={handleDragEnd}
           >
             <div
               className={`w-full h-[4px] bg-blue-500 ${
                 index === 0 && hoverIndex === -1 ? "visible" : "invisible"
               }`}
-            ></div>
+              // className={`w-full h-[4px] bg-blue-500`}
+            >
+              {/* {index} {hoverIndex} */}
+            </div>
 
             <TodoCompo
-              className={`${draggingTodo?.id === t.id ? "opacity-50" : ""}`}
+              className={`${
+                draggingTodo?.todo.id === t.id ? "opacity-50" : ""
+              }`}
               todo={t}
               changeTodoName={changeTodoName}
               deleteTodo={deleteTodo}
@@ -179,14 +210,6 @@ export function BoardCompo({
             ></div>
           </div>
         ))}
-        <div
-          className="flex-1"
-          onDragOver={(e) => {
-            e.preventDefault();
-            handleDragOver(board.todos.length);
-          }}
-          onDrop={handleDrop}
-        ></div>
       </CardContent>
     </Card>
   );
