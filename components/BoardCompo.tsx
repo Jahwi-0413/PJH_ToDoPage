@@ -182,10 +182,7 @@ export function BoardCompo({
               className={`w-full h-[4px] bg-blue-500 ${
                 index === 0 && hoverIndex === -1 ? "visible" : "invisible"
               }`}
-              // className={`w-full h-[4px] bg-blue-500`}
-            >
-              {/* {index} {hoverIndex} */}
-            </div>
+            ></div>
 
             <TodoCompo
               className={`${
