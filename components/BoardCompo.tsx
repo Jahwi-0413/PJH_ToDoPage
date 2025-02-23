@@ -64,6 +64,9 @@ export function BoardCompo({
     if (!draggingTodo) {
       return;
     }
+    if (hoverIndex === index) {
+      return;
+    }
     setHoverIndex(index);
   };
 
