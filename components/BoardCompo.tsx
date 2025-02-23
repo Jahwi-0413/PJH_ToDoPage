@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useImperativeHandle } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import {
@@ -22,7 +22,6 @@ import { Todo } from "@/lib/todoManager";
 
 interface BoardProps extends React.ComponentProps<"div"> {
   board: Board;
-  setBoard: (board: Board) => void;
   createTodo: () => void;
   editBoardName: (name: string) => void;
   deleteBoard: () => void;
@@ -53,6 +52,7 @@ export function BoardCompo({
   ...props
 }: BoardProps) {
   const nameInputRef = useRef<HTMLInputElement>(null);
+
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
 
   const handleDragStart = (todo: Todo) => {

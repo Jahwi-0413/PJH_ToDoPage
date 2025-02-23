@@ -148,7 +148,6 @@ export function BoardListCompo({ boards, setBoards }: BoardListCompo) {
           ></div>
           <BoardCompo
             board={board}
-            setBoard={setBoard}
             createTodo={() => {
               const newTodo: Todo = TodoManager.createTodo();
               setBoard({ ...board, todos: [...board.todos, newTodo] });
