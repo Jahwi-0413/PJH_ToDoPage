@@ -16,5 +16,9 @@ const config: StorybookConfig = {
     options: {},
   },
   staticDirs: ["..\\public"],
+  babel: async (options) => ({
+    ...options,
+    presets: [...options.presets, "@babel/preset-react"],
+  }),
 };
 export default config;
