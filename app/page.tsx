@@ -15,7 +15,11 @@ import {
 import { TodoManager } from "@/lib/todoManager";
 
 export default function Home() {
-  const [boards, setBoards] = useState<Board[]>(StorageManager.getBoards());
+  const [boards, setBoards] = useState<Board[]>([]);
+
+  useEffect(() => {
+    setBoards(StorageManager.getBoards());
+  }, []);
 
   useEffect(() => {
     StorageManager.setBoards(boards);
