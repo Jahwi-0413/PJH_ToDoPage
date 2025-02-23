@@ -74,7 +74,7 @@ export function BoardCompo({
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     if (draggingTodo !== null && hoverIndex !== null) {
       // todo를 옮길때는 부모로 이벤트 전파 막음
-      // e.stopPropagation();
+      e.stopPropagation();
       let newIndex = hoverIndex;
       if (hoverIndex <= 0) {
         newIndex = 0;
@@ -175,6 +175,7 @@ export function BoardCompo({
             }}
             onDragOver={(e) => {
               e.preventDefault();
+              e.stopPropagation();
               handleDragOver(index);
             }}
             onDrop={(e) => handleDrop(e)}
