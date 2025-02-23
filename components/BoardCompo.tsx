@@ -157,9 +157,6 @@ export function BoardCompo({
           e.preventDefault();
           if (board.todos.length === 0) {
             handleDragOver(0);
-          } else {
-            e.stopPropagation();
-            handleDragOver(board.todos.length);
           }
         }}
         onDrop={(e) => handleDrop(e)}
@@ -167,7 +164,7 @@ export function BoardCompo({
         {board.todos.map((t, index) => (
           <div
             key={t.id}
-            className={`relative  rounded-lg `}
+            className={`relative rounded-lg `}
             draggable
             onDragStart={(e) => {
               e.stopPropagation();
@@ -201,16 +198,16 @@ export function BoardCompo({
             {hoverIndex === index && (
               <div className="absolute bottom-[-4px] left-0 w-full h-[4px] bg-blue-500"></div>
             )}
-            <div
-              className={`w-full h-[4px] bg-blue-500 ${
-                index === board.todos.length - 1 &&
-                hoverIndex === board.todos.length
-                  ? "visible"
-                  : "invisible"
-              }`}
-            ></div>
           </div>
         ))}
+        <div
+          className={`w-full flex-1`}
+          onDragOver={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleDragOver(board.todos.length - 1);
+          }}
+        ></div>
       </CardContent>
     </Card>
   );
