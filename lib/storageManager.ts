@@ -4,9 +4,17 @@ export const STORAGE_KEY_BOARD = "boards";
 
 const StorageManager = {
   setItem: (key: string, value: any) => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
     localStorage.setItem(key, JSON.stringify(value));
   },
   getItem: (key: string) => {
+    // 서버 환경에서는 접근할 수 없으니 예외처리
+    if (typeof window === "undefined") {
+      return null;
+    }
     const item = localStorage.getItem(key);
     return item ? JSON.parse(item) : null;
   },
