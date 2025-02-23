@@ -25,7 +25,13 @@ const StorageManager = {
   },
 
   getBoards: (): Board[] => {
-    return StorageManager.getItem(STORAGE_KEY_BOARD);
+    let boards: Board[] | null = StorageManager.getItem(STORAGE_KEY_BOARD);
+    // 데이터가 없는 경우에는 강제로 만들어준다
+    if (!boards) {
+      StorageManager.initData();
+      return [];
+    }
+    return boards;
   },
   addBoard: (): Board => {
     const boards: Board[] = StorageManager.getBoards();
